@@ -1,12 +1,13 @@
-(function() {
+(function () {
   'use strict';
 
-  const movies = [];
+  let movies = [];
 
-  const renderMovies = function() {
+  const renderMovies = function () {
+    console.log('test')
     $('#listings').empty();
 
-    for (const movie of movies) {
+    for (let movie of movies) {
       const $col = $('<div>').addClass('col s6');
       const $card = $('<div>').addClass('card hoverable');
       const $content = $('<div>').addClass('card-content center');
@@ -48,6 +49,9 @@
       $modalContent.append($modalHeader, $movieYear, $modalText);
       $modal.append($modalContent);
 
+  
+      
+
       $col.append($card, $modal);
 
       $('#listings').append($col);
@@ -55,6 +59,57 @@
       $('.modal-trigger').leanModal();
     }
   };
+  //let moviesArray= [ ];
+
+  const searchBtn = document.getElementsByClassName('btn-large waves-effect waves-light')[0];
+  searchBtn.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    inputValid();
+  })
+
+
+  // searching the value of input field
+  let inputValue = document.getElementById('search')
+  function inputValid() {
+    movies = [];
+    fetch(`https://omdb-api.now.sh/?s=${inputValue.value}`)
+      .then(response => response.json())
+      .then((data) => {
+        if (inputValue.value != '') {
+
+          for (let i = 0; i < data.Search.length; i++) {
+            let movie = {
+              id: '',
+              poster: '',
+              title: '',
+              year: ''
+            }
+            movie.id = data.Search[i].imdbID;
+            movie.poster = data.Search[i].Poster;
+            movie.title = data.Search[i].Title;
+            movie.year = data.Search[i].Year;
+
+            fetch(`http://www.omdbapi.com/?i=${movie.id}&apikey=efabd8b9`)
+              .then(response => response.json())
+              .then((data) => {
+                movie.plot = data.Plot;
+                renderMovies();
+                movies.push(movie);
+                inputValue.value = '';
+              })
+              
+          }
+        } else {
+          alert('Give a proper movie name');
+        }
+      })
+  }
+
+
+
+
+
+
 
   // ADD YOUR CODE HERE
 })();
